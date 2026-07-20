@@ -172,7 +172,7 @@
                 <version>3.2.5</version>
                 <configuration>
                     <includes>
-                        <include>**  b/TestRunner.java</include>
+                        <include>**/TestRunner.java</include>
                     </includes>
                     <systemPropertyVariables>
                         <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
