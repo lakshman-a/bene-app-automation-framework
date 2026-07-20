@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.upskill</groupId>
+    <artifactId>bene-app-automation-framework</artifactId>
+    <version>3.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>bene-app Automation Framework v3 - Playwright + Cucumber + API + DB</name>
+    <description>
+        Clean test automation framework for the bene-app: UI (Playwright + Cucumber BDD + POM),
+        API (RestAssured), DB (JDBC/PostgreSQL), with Allure reporting.
+    </description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Dependency versions -->
+        <playwright.version>1.42.0</playwright.version>
+        <cucumber.version>7.15.0</cucumber.version>
+        <junit4.version>4.13.2</junit4.version>
+        <allure.version>2.25.0</allure.version>
+        <allure.maven.version>2.12.0</allure.maven.version>
+        <aspectj.version>1.9.21</aspectj.version>
+        <slf4j.version>2.0.11</slf4j.version>
+        <logback.version>1.4.14</logback.version>
+        <restassured.version>5.4.0</restassured.version>
+        <jackson.version>2.16.1</jackson.version>
+        <postgresql.version>42.7.0</postgresql.version>
+
+        <!-- Execution properties (override on CLI: -Dbrowser=firefox) -->
+        <cucumber.filter.tags>@bene</cucumber.filter.tags>
+        <browser>chromium</browser>
+        <headless>false</headless>
+        <env>qa</env>
+    </properties>
+
+    <dependencies>
+
+        <!-- UI: Playwright -->
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>${playwright.version}</version>
+        </dependency>
+
+        <!-- BDD: Cucumber -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Test runner: JUnit 4 (Cucumber runner) -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit4.version}</version>
+        </dependency>
+
+        <!-- Reporting: Allure -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-rest-assured</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+
+        <!-- API: RestAssured -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restassured.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <!-- DB: PostgreSQL -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+
+        <!-- JSON parsing -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- Utilities -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.15.1</version>
+        </dependency>
+
+        <!-- Excel (Apache POI - reading/writing .xlsx via XSSF) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.12.1</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+
+            <!-- Clean -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+
+            <!-- Exec: run a standalone sample main() class, e.g.
+                 mvn exec:java -Dexec.mainClass=qa.beneapp.sample.ApiSampleMain -Dexec.classpathScope=test
+                 mvn exec:java -Dexec.mainClass=qa.beneapp.sample.UiSampleMain  -Dexec.classpathScope=test -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+            </plugin>
+
+            <!-- Surefire: runs the Cucumber JUnit4 runner -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <includes>
+                        <include>**  b/TestRunner.java</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
+                        <browser>${browser}</browser>
+                        <headless>${headless}</headless>
+                        <env>${env}</env>
+                        <allure.results.directory>target/allure-results</allure.results.directory>
+                    </systemPropertyVariables>
+                    <argLine>
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                    </argLine>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>3.2.5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!-- Allure Maven report -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>${allure.maven.version}</version>
+                <configuration>
+                    <reportVersion>${allure.version}</reportVersion>
+                    <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- Tag-based run profiles -->
+        <profile>
+            <id>smoke</id>
+            <properties>
+                <cucumber.filter.tags>@smoke</cucumber.filter.tags>
+            </properties>
+        </profile>
+        <profile>
+            <id>regression</id>
+            <properties>
+                <cucumber.filter.tags>@regression</cucumber.filter.tags>
+            </properties>
+        </profile>
+        <profile>
+            <id>ui</id>
+            <properties>
+                <cucumber.filter.tags>@ui</cucumber.filter.tags>
+            </properties>
+        </profile>
+        <profile>
+            <id>api</id>
+            <properties>
+                <cucumber.filter.tags>@api</cucumber.filter.tags>
+            </properties>
+        </profile>
+
+        <!-- Environment profiles -->
+        <profile>
+            <id>dev</id>
+            <properties><env>dev</env></properties>
+        </profile>
+        <profile>
+            <id>qa</id>
+            <properties><env>qa</env></properties>
+        </profile>
+        <profile>
+            <id>uat</id>
+            <properties><env>uat</env></properties>
+        </profile>
+    </profiles>
+
+</project>

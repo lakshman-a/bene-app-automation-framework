@@ -1,0 +1,47 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Allure & test output
+allure-results/
+allure-report/
+target/allure-results/
+target/allure-report/
+target/cucumber-reports/
+target/surefire-reports/
+target/videos/
+target/screenshots/
+target/traces/
+target/logs/
+reports/
+
+# Playwright browser downloads
+.playwright/
+
+# Local Allure CLI binary distribution (downloaded tool, not source)
+.allure/
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logback.log
+
+# Local config overrides
+local.properties

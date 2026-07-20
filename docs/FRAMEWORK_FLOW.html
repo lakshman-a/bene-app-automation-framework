@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Playwright Test Framework — God Book</title>
+<style>
+  :root { --ink:#1a1f36; --muted:#5a6378; --line:#d9dee9; --accent:#3f51b5; --bg:#fafbfd; --code:#eef1f6; --warn:#ffefc1; --good:#dbf3df; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink); background:var(--bg); margin:0; padding:32px; line-height:1.5; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 28px 0 10px; color:var(--accent); border-bottom:2px solid var(--accent); padding-bottom:4px; }
+  h3 { font-size: 15px; margin: 16px 0 6px; }
+  p { margin: 6px 0; }
+  .subtitle { color:var(--muted); margin-bottom: 24px; }
+  code, .mono { font-family: Consolas, Menlo, monospace; background: var(--code); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+  pre { background: var(--code); padding: 10px 14px; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height:1.45; }
+  table { width:100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #eef1f6; font-weight: 600; }
+  .pipe { display:flex; gap:0; align-items:stretch; flex-wrap:wrap; margin: 10px 0 18px; }
+  .pipe .box { flex:1 1 0; min-width:130px; background:#fff; border:1px solid var(--line); border-radius:6px; padding:10px; position:relative; text-align:center; font-size:13px; }
+  .pipe .box::after { content:"\25B6"; position:absolute; right:-12px; top:50%; transform:translateY(-50%); color:var(--accent); font-size:14px; z-index:2; background:var(--bg); padding:0 2px; }
+  .pipe .box:last-child::after { content:""; }
+  .pipe .box b { display:block; color:var(--accent); margin-bottom:4px; }
+  .pipe .box small { color:var(--muted); }
+  .step { display:flex; align-items:flex-start; gap:14px; padding:12px 0; border-top:1px dashed var(--line); }
+  .step:first-of-type { border-top:none; }
+  .step .num { flex:0 0 36px; height:36px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .step .body { flex:1; }
+  .step .body h3 { margin: 0 0 4px; }
+  .note { background:var(--warn); border-left:4px solid #c79b00; padding:8px 12px; border-radius:4px; margin: 8px 0; font-size:13px; }
+  .good { background:var(--good); border-left:4px solid #2e7d32; padding:8px 12px; border-radius:4px; margin: 8px 0; font-size:13px; }
+  .lbl { display:inline-block; padding:1px 7px; border-radius:10px; font-size:11px; font-weight:600; background:#e8eaf6; color:#283593; margin-right:6px; }
+  .lbl.tag { background:#fff3e0; color:#bf6900; }
+  ul { margin: 4px 0 4px 18px; padding:0; }
+  li { margin: 2px 0; }
+  @media print { body { padding:14px; background:#fff; } .pipe .box::after { color:#888; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Playwright Test Framework — God Book</h1>
+<div class="subtitle">Your one-page guide for writing, running, and reading a UI test in <span class="mono">playwright-java-framework-v3-main</span>. Bookmark this file.</div>
+
+<!-- ==================================================== -->
+<h2>1. How the engine actually works (read this once)</h2>
+
+<p>When you type <code>mvn test</code>, this is the chain of things that fire — like a relay race:</p>
+
+<div class="pipe">
+  <div class="box"><b>Maven Surefire</b><small>finds <span class="mono">TestRunner</span></small></div>
+  <div class="box"><b>TestRunner</b><small>loads features &amp; glue</small></div>
+  <div class="box"><b>Hooks @Before</b><small>opens browser</small></div>
+  <div class="box"><b>Feature file</b><small>Gherkin scenario</small></div>
+  <div class="box"><b>Step Defs</b><small>match Gherkin → Java</small></div>
+  <div class="box"><b>Page Object</b><small>clicks, types, reads</small></div>
+  <div class="box"><b>Hooks @After</b><small>screenshot on fail, close browser</small></div>
+  <div class="box"><b>Allure</b><small>generates report</small></div>
+</div>
+
+<p><b>Bene-style analogy:</b> Think of it like processing a withdrawal request. Surefire is the system entry. The TestRunner is the queue picker. Hooks open and close the user session. The feature file is the request form (what the customer asks for in English). Step defs translate the form into actual API calls. The Page Object is the screen / endpoint that does the work. Allure is the audit log.</p>
+
+<h3>The seven living parts of your framework</h3>
+<table>
+<thead><tr><th>Part</th><th>Where it lives</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><b>Feature file</b> (Gherkin)</td><td><span class="mono">src/test/resources/features/*.feature</span></td><td>Plain-English scenario: <i>Given / When / Then</i></td></tr>
+<tr><td><b>Step Definition</b></td><td><span class="mono">src/test/java/com/upskill/stepdefinitions/</span></td><td>Java code that runs when Cucumber sees a Gherkin line</td></tr>
+<tr><td><b>Page Object</b> (POM)</td><td><span class="mono">src/main/java/com/upskill/pages/&lt;app&gt;/</span></td><td>One class per screen. Holds locators + actions for that screen</td></tr>
+<tr><td><b>BasePage</b></td><td><span class="mono">src/main/java/com/upskill/pages/BasePage.java</span></td><td>Parent of every Page Object. Provides <code>click()</code>, <code>type()</code>, <code>waitForElement()</code>, etc.</td></tr>
+<tr><td><b>Driver</b></td><td><span class="mono">src/main/java/com/upskill/driver/PlaywrightDriver.java</span></td><td>Opens/closes the browser. One per thread (parallel-safe).</td></tr>
+<tr><td><b>Hooks</b></td><td><span class="mono">src/test/java/com/upskill/hooks/Hooks.java</span></td><td>Runs <code>@Before</code> / <code>@After</code> each scenario — opens browser, screenshots failures, closes browser.</td></tr>
+<tr><td><b>Runner</b></td><td><span class="mono">src/test/java/com/upskill/runners/TestRunner.java</span></td><td>The entry point Maven calls. Tells Cucumber where features &amp; step defs live.</td></tr>
+<tr><td><b>Config</b></td><td><span class="mono">src/test/resources/config-qa.properties</span><br><span class="mono">config-dev.properties</span></td><td>Per-environment values: base URL, browser, timeouts.</td></tr>
+</tbody>
+</table>
+
+<!-- ==================================================== -->
+<h2>2. To add a NEW UI test — do these 7 steps in this order</h2>
+
+<p>Example: <i>"I want to test that a beneficiary login on SauceDemo (a stand-in for bene portal) shows the Products page."</i></p>
+
+<div class="step">
+  <div class="num">1</div>
+  <div class="body">
+    <h3>Describe the scenario in plain English</h3>
+    <p>Open the feature file for your app (or create a new <span class="mono">.feature</span> in <span class="mono">src/test/resources/features/</span>). Use <b>Given / When / Then</b>:</p>
+<pre>@all @bene
+Feature: Beneficiary login
+  Background:
+    Given I am on the SauceDemo login page
+
+  @smoke
+  Scenario: Standard beneficiary lands on Products page
+    When I login with username "standard_user" and password "secret_sauce"
+    Then I should be redirected to the Products page</pre>
+    <p><span class="lbl tag">@smoke</span><span class="lbl tag">@regression</span> <span class="lbl tag">@all</span> are <b>tags</b> — like labels. You filter at run-time with <code>-Dcucumber.filter.tags="@smoke"</code>.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">2</div>
+  <div class="body">
+    <h3>Find the elements on the page</h3>
+    <p>Open the app in Chrome → right-click element → <b>Inspect</b>. Grab one of:</p>
+    <ul>
+      <li><code>#user-name</code> (id) — best</li>
+      <li><code>[data-test='error']</code> (data-attribute) — also great</li>
+      <li><code>.error-message</code> (CSS class) — OK</li>
+      <li>XPath — last resort, brittle</li>
+    </ul>
+    <div class="good"><b>Tip:</b> Playwright lets you record locators too. Run <code>npx playwright codegen https://www.saucedemo.com</code> in a terminal and it opens a browser that emits selectors as you click.</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">3</div>
+  <div class="body">
+    <h3>Put those locators + actions into a Page Object</h3>
+    <p>One class per screen. Lives in <span class="mono">src/main/java/com/upskill/pages/&lt;app&gt;/</span>. <b>Always</b> <code>extends BasePage</code>:</p>
+<pre>public class LoginPage extends BasePage {
+    // ===== Locators (constants at top) =====
+    private static final String USERNAME_FIELD = "#user-name";
+    private static final String PASSWORD_FIELD = "#password";
+    private static final String LOGIN_BUTTON   = "#login-button";
+
+    // ===== Actions (one method per user intent) =====
+    @Step("Login as: {username}")
+    public void loginAs(String username, String password) {
+        type(USERNAME_FIELD, username);
+        type(PASSWORD_FIELD, password);
+        click(LOGIN_BUTTON);
+    }
+
+    // ===== Validations (one method per question) =====
+    public boolean isErrorDisplayed() {
+        return isVisible("[data-test='error']");
+    }
+}</pre>
+    <div class="good"><b>Why the structure matters:</b> Locators at the top → easy to update when the UI changes. Actions in the middle → describe what a user does. Validations at the bottom → answer yes/no questions for the test. <b>Never write <code>page.locator(...)</code> in a step definition.</b> That belongs in the Page Object.</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">4</div>
+  <div class="body">
+    <h3>Wire the Gherkin steps to your Page Object methods</h3>
+    <p>In <span class="mono">src/test/java/com/upskill/stepdefinitions/</span> create or edit a Step Def class:</p>
+<pre>public class LoginSteps {
+    private LoginPage loginPage = new LoginPage();
+    private ProductsPage productsPage = new ProductsPage();
+
+    @Given("I am on the SauceDemo login page")
+    public void iAmOnLoginPage() { loginPage.navigateToLoginPage(); }
+
+    @When("I login with username {string} and password {string}")
+    public void iLogin(String user, String pwd) { loginPage.loginAs(user, pwd); }
+
+    @Then("I should be redirected to the Products page")
+    public void iSeeProducts() {
+        assertTrue("Products page expected", productsPage.isProductsPageDisplayed());
+    }
+}</pre>
+    <p>Each <code>@Given/@When/@Then</code> string must match the Gherkin line word-for-word (parameters in <code>{string}</code> / <code>{int}</code>).</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">5</div>
+  <div class="body">
+    <h3>Run it</h3>
+    <p>From the project root, in PowerShell:</p>
+<pre>mvn test "-Dcucumber.filter.tags=@bene"          # only the new tag
+mvn test                                          # all tests (@all tag)
+mvn test "-Dcucumber.filter.tags=@smoke"          # smoke set
+mvn test -Dbrowser=firefox -Dheadless=false       # different browser</pre>
+    <div class="note"><b>On Windows PowerShell</b>, always quote the <code>-D</code> argument (<code>"-Dcucumber.filter.tags=@smoke"</code>) — otherwise PowerShell eats the <code>@</code>.</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">6</div>
+  <div class="body">
+    <h3>Watch what happens</h3>
+    <ul>
+      <li>A real Chrome window opens (because <code>browser.headless=false</code> in <span class="mono">config-qa.properties</span>).</li>
+      <li>You see your scenario steps run live, slowed to ~500ms each (<code>browser.slow.mo=500</code>).</li>
+      <li>Console prints <code>STARTING SCENARIO</code> / <code>FINISHED SCENARIO</code> from Hooks.</li>
+      <li>On failure: a screenshot is captured automatically and attached to the report.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">7</div>
+  <div class="body">
+    <h3>See the result (Allure report)</h3>
+<pre>mvn allure:serve</pre>
+    <p>Opens a browser with a full visual report — pass/fail counts, scenario timeline, screenshots on failure, all the <code>@Step("...")</code> labels from your Page Object methods.</p>
+    <div class="good"><b>Bene analogy:</b> The Allure report is your "audit trail". Every action a tester takes (click, type, validate) is logged like a transaction journal — perfect for showing your boss / pasting into a JIRA ticket.</div>
+  </div>
+</div>
+
+<!-- ==================================================== -->
+<h2>3. Run-command cheat sheet</h2>
+
+<table>
+<thead><tr><th>I want to…</th><th>Command</th></tr></thead>
+<tbody>
+<tr><td>Run everything</td><td><span class="mono">mvn test</span></td></tr>
+<tr><td>Run smoke only</td><td><span class="mono">mvn test -Psmoke</span></td></tr>
+<tr><td>Run regression</td><td><span class="mono">mvn test -Pregression</span></td></tr>
+<tr><td>Run by tag</td><td><span class="mono">mvn test "-Dcucumber.filter.tags=@login"</span></td></tr>
+<tr><td>Multiple tags (AND)</td><td><span class="mono">mvn test "-Dcucumber.filter.tags=@smoke and @qa"</span></td></tr>
+<tr><td>Exclude a tag</td><td><span class="mono">mvn test "-Dcucumber.filter.tags=not @regression"</span></td></tr>
+<tr><td>Run on Firefox</td><td><span class="mono">mvn test -Dbrowser=firefox</span></td></tr>
+<tr><td>Run headless</td><td>Set <span class="mono">browser.headless=true</span> in config-qa.properties</td></tr>
+<tr><td>Just compile (no run)</td><td><span class="mono">mvn -q -DskipTests compile test-compile</span></td></tr>
+<tr><td>Clean target/ folder</td><td><span class="mono">mvn clean</span></td></tr>
+<tr><td>Generate Allure report</td><td><span class="mono">mvn allure:serve</span></td></tr>
+</tbody>
+</table>
+
+<!-- ==================================================== -->
+<h2>4. Where to look when things break</h2>
+
+<table>
+<thead><tr><th>Symptom</th><th>First place to look</th></tr></thead>
+<tbody>
+<tr><td>Compile fails</td><td>Console output of <span class="mono">mvn compile</span> — the file:line is in red</td></tr>
+<tr><td>Cucumber says "Undefined step"</td><td>You wrote a Gherkin line but no <code>@Given/@When/@Then</code> matches it in <span class="mono">stepdefinitions/</span>. Cucumber prints a template you can paste.</td></tr>
+<tr><td>Locator not found</td><td>The page changed, or you're navigating before it loaded. Add <code>waitForElement(selector)</code> in your action.</td></tr>
+<tr><td>Browser doesn't open</td><td>Check <span class="mono">browser.headless</span> in config — also check Playwright browsers are installed (<span class="mono">mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install"</span>).</td></tr>
+<tr><td>Test "passes" but I doubt it</td><td>Open Allure report — every step shows what was clicked + screenshots.</td></tr>
+<tr><td>Got the wrong env</td><td>You're on QA by default. Override with <span class="mono">-Denv=dev</span>.</td></tr>
+</tbody>
+</table>
+
+<!-- ==================================================== -->
+<h2>5. Mini-glossary (when terms confuse you)</h2>
+
+<table>
+<thead><tr><th>Term</th><th>Plain meaning</th></tr></thead>
+<tbody>
+<tr><td><b>Gherkin</b></td><td>The English-like syntax in <span class="mono">.feature</span> files (Given/When/Then). Anyone — even a non-coder PM — can read it.</td></tr>
+<tr><td><b>Cucumber</b></td><td>The tool that reads Gherkin and runs matching Java code.</td></tr>
+<tr><td><b>Glue</b></td><td>The package path Cucumber scans to find your <code>@Given/@When/@Then</code> Java methods. For us: <span class="mono">com.upskill.stepdefinitions</span> + <span class="mono">com.upskill.hooks</span>.</td></tr>
+<tr><td><b>Page Object (POM)</b></td><td>A Java class that represents one screen of the app. Holds the locators + the actions you can do there.</td></tr>
+<tr><td><b>Hooks</b></td><td>Code that runs around every scenario — open browser before, close after.</td></tr>
+<tr><td><b>Runner</b></td><td>The Java class with <code>@RunWith(Cucumber.class)</code> that Maven actually executes.</td></tr>
+<tr><td><b>Tag</b></td><td>A label like <span class="mono">@smoke</span> at the top of a scenario / feature. Used to pick which tests to run.</td></tr>
+<tr><td><b>Allure</b></td><td>The reporting tool. Generates a pretty HTML dashboard from the test run.</td></tr>
+<tr><td><b>ThreadLocal</b></td><td>A storage box that gives each parallel thread its own copy — so two tests running side-by-side don't share the same browser.</td></tr>
+</tbody>
+</table>
+
+<!-- ==================================================== -->
+<h2>6. Final mental model (memorise this)</h2>
+
+<div class="good" style="font-size:14px;">
+<b>Feature file</b> says <i>WHAT</i> to test (in English).<br>
+<b>Step Def</b> says <i>HOW</i> to test it (calls the Page Object).<br>
+<b>Page Object</b> says <i>WHERE</i> on the page to do it (locators + actions).<br>
+<b>BasePage</b> says <i>HOW THE BROWSER DOES IT</i> (click/type/wait — the Playwright wrappers).<br>
+<b>Hooks + Driver</b> say <i>WHEN TO START AND STOP</i> the browser.<br>
+<b>Runner</b> says <i>GO</i>. Maven calls it. Allure tells the story.
+</div>
+
+<p style="color:var(--muted); font-size:12px; margin-top:24px;">Generated as a guide for Lakshman. Project: playwright-java-framework-v3-main • If something here drifts from the code, the code wins — re-read <span class="mono">TestRunner.java</span>, <span class="mono">Hooks.java</span>, <span class="mono">BasePage.java</span>.</p>
+
+</div>
+</body>
+</html>
