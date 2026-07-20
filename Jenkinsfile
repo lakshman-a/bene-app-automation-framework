@@ -13,7 +13,7 @@ pipeline {
     parameters {
         string(  name: 'BRANCH',      defaultValue: 'main',      description: 'Git branch to build')
         choice(  name: 'ENVIRONMENT', choices: ['qa', 'dev', 'uat'], description: 'Target environment (-Denv=)')
-        choice(  name: 'TEST_TAGS',   choices: ['@smoke', '@regression', '@bene', '@login', '@products', '@cart'], description: 'Cucumber tags to run')
+        choice(  name: 'TEST_TAGS',   choices: ['@public', '@smoke', '@regression', '@bene', '@login', '@products', '@cart'], description: 'Cucumber tags to run (@public needs no local app/DB; others need bene-app running)')
         choice(  name: 'BROWSER',     choices: ['chromium', 'firefox', 'webkit'], description: 'Browser for UI tests')
         string(  name: 'CUSTOM_TAGS', defaultValue: '',          description: 'Custom Cucumber tag expression (overrides TEST_TAGS if set)')
     }
