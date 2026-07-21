@@ -38,7 +38,7 @@ mvn test -Psmoke
 mvn test -Pregression
 
 # Specific tags
-mvn test "-Dcucumber.filter.tags=@login"7
+mvn test "-Dcucumber.filter.tags=@login"
 
 # Different browser
 mvn test -Dbrowser=firefox
